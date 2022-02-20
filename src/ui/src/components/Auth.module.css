@@ -1,0 +1,14 @@
+.title {
+  margin-top: 0;
+  font-weight: 100;
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+form {
+  padding: 0;
+}
+
+.error-msg {
+  color: red;
+}
