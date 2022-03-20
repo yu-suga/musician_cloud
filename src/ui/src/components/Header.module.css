@@ -1,4 +1,16 @@
 .headerTitle {
-  width: 100%;
+  width: 80%;
   font-weight: 400;
+}
+
+.item {
+  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  margin: auto;
+  padding: 0;
+}
+
+.name {
+  width: 100%;
 }

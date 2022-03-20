@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 // import '../components/Home.module.css';
+import axios from '../axiosConfig';
 import { Box, Grid, Input, Button, Paper } from '@mui/material';
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 import { makeStyles } from '@mui/styles';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../features/userSlice';
 import { NoEncryptionTwoTone } from '@mui/icons-material';
+import { userInfo } from '../interface/userInfo';
+import { setUserInfo } from '../features/userSlice';
 
 const Home: React.FC = () => {
   const useStyles: any = makeStyles({
@@ -26,34 +29,32 @@ const Home: React.FC = () => {
 
   const user = useSelector(selectUser);
 
-  const rows: GridRowsProp = [
-    { id: 1, col1: 'Hello', col2: 'World' },
-    { id: 2, col1: 'DataGridPro', col2: 'is Awesome' },
-    { id: 3, col1: 'MUI', col2: 'is Amazing' },
-  ];
-  const columns: GridColDef[] = [
-    { field: 'col1', headerName: '', width: 150 },
-    { field: 'col2', headerName: '', width: 150 },
-    { field: 'col3', headerName: '', width: 150 },
-  ];
+  const [users, setUsers] = React.useState<userInfo[]>([]);
+
+  useEffect(() => {
+    const exeFetchUsers = async () => {
+      const result = await axios.get('v1/users');
+      const usersInfo: userInfo[] = result.data.map((v: userInfo) => {
+        users.push(v);
+      });
+      setUsers(usersInfo);
+      console.log('result', users);
+    };
+    exeFetchUsers();
+  }, []);
 
   return (
     <Box sx={{ height: '100vh' }}>
       <Paper className={classes.paper}>
-        {/* <DataGrid
-          className={classes.dataTable}
-          rows={rows}
-          columns={columns}
-          hideFooter
-          disableColumnMenu
-        /> */}
         <div>
           <table>
             <tbody>
-              <tr>
-                <td>内容1</td>
-                <td>内容2</td>
-              </tr>
+              {users.map((v) => (
+                <tr>
+                  <td>{v.area}</td>
+                  <td>{v}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

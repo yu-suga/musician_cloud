@@ -6,6 +6,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Avatar,
+  Stack,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import styles from '../components/Header.module.css';
@@ -22,16 +24,30 @@ const Header: React.FC = () => {
   };
 
   const navigate = useNavigate();
+
   const moveEditProfile = () => {
     navigate('/editProfile');
   };
+  const moveHome = () => {
+    navigate('/home');
+  };
+  const path = 'singer.png';
+  const baseImagePath = `${process.env.PUBLIC_URL}/img/${path}`;
 
   return (
     <AppBar>
       <Toolbar>
         <div style={{ width: '100%' }}>
-          <Box sx={{ display: 'flex', paddingRight: '5%', paddingLeft: '5%' }}>
+          <Box sx={{ display: 'flex', paddingRight: '4%', paddingLeft: '4%' }}>
             <h2 className={styles.headerTitle}>Sound Allies</h2>
+            <div className={styles.item}>
+              <Avatar
+                src={baseImagePath}
+                sx={{ width: 30, height: 30 }}
+                variant="rounded"
+              ></Avatar>
+              <span className={styles.name}>テスト太郎</span>
+            </div>
             <IconButton
               size="large"
               color="inherit"
@@ -52,6 +68,7 @@ const Header: React.FC = () => {
                 'aria-labelledby': 'basic-button',
               }}
             >
+              <MenuItem onClick={moveHome}>Home</MenuItem>
               <MenuItem onClick={moveEditProfile}>Edit Profile</MenuItem>
               <MenuItem onClick={handleClose}>Logout</MenuItem>
             </Menu>

@@ -11,16 +11,18 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Input,
 } from '@mui/material';
-import MusicNoteIcon from '@mui/icons-material/MusicNote';
 import { makeStyles } from '@mui/styles';
-import { useSelector } from 'react-redux';
-import { selectUser } from '../features/userSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectUser, setUserInfo } from '../features/userSlice';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { userInfo } from '../interface/userInfo';
-import image from '../tmp/image/boy1.png';
-import audio from '../tmp/image/boy1.png';
+import { updateUserInfo } from '../interface/updateUserInfo';
+import { mst, fetchArea } from '../config/userInfoConfig';
+import areaMst from '../config/areaConst.json';
+import genreMaster from '../config/genreConst.json';
+import musicPartMaster from '../config/musicPartConst.json';
+import { SelectChangeEvent } from '@mui/material';
 
 const EditProfile = () => {
   const useStyles: any = makeStyles({
@@ -30,7 +32,7 @@ const EditProfile = () => {
     inputPaper: {
       margin: 'auto',
       padding: 70,
-      maxWidth: '70%',
+      maxWidth: '80%',
       flexGrow: 1,
       textAlign: 'center',
     },
@@ -45,8 +47,61 @@ const EditProfile = () => {
 
   const user = useSelector(selectUser);
 
+  const [userInfo, setUserInfo] = React.useState<userInfo>(user);
+
+  const imgFileName = 'logo192.png';
+  const baseImagePath = `${process.env.PUBLIC_URL}/img/${imgFileName}`;
+
+  const audioFileName = 'logo192.png';
+  const baseAudioPath = `${process.env.PUBLIC_URL}/audio/${audioFileName}`;
+
   const exitEdit: SubmitHandler<userInfo> = (data) => {
     console.log('data');
+  };
+
+  const fetchAreaInfo = () => {
+    // console.log('result', fetchArea(1));
+    return fetchArea(userInfo.area);
+  };
+
+  const reqDate: updateUserInfo = {
+    area: 1,
+    genre: 1,
+    audio_1: '',
+    part: 1,
+    profile_text: '',
+    image: '',
+    name: '',
+    email: 'yu1996@outlook.jp',
+  };
+  /**
+   * ユーザー情報更新api実行処理
+   * @param email
+   */
+  const exeUpdateUserApi = async (reqDate: updateUserInfo) => {
+    return await axios.put(`/v1/user/edit`);
+  };
+
+  const dispatch = useDispatch();
+
+  const areaInfo: mst = areaMst.area;
+  const genreInfo: mst = genreMaster.genre;
+  const musicPartInfo: mst = musicPartMaster.part;
+
+  const handleChangeArea = (e: SelectChangeEvent<number>) =>
+    (user.area = Number(e.target.value));
+
+  const handleChangeGenre = (e: SelectChangeEvent<number>) =>
+    (user.genre = Number(e.target.value));
+
+  const handleChangePart = (e: SelectChangeEvent<number>) =>
+    (user.part = Number(e.target.value));
+
+  const updateUser = async () => {
+    const res = await exeUpdateUserApi(reqDate);
+    if (res.status === 200) {
+      dispatch(setUserInfo);
+    }
   };
 
   return (
@@ -65,7 +120,7 @@ const EditProfile = () => {
                   <IconButton>
                     <Avatar
                       sx={{ width: 200, height: 200 }}
-                      src={image}
+                      src={baseImagePath}
                     ></Avatar>
                   </IconButton>
                 </Grid>
@@ -82,7 +137,6 @@ const EditProfile = () => {
                     control={control}
                     defaultValue={user.name}
                   />
-                  {user.id}
                 </Grid>
               </Grid>
               <Grid item xs={10}>
@@ -90,30 +144,62 @@ const EditProfile = () => {
                   <InputLabel className={classes.label} id="city">
                     活動拠点
                   </InputLabel>
-                  <Select id="city" labelId="city" sx={{ width: '100%' }}>
-                    <MenuItem value={10}>Ten</MenuItem>
+                  <Select
+                    id="city"
+                    label={areaInfo[userInfo.area]}
+                    sx={{ width: '100%' }}
+                    onChange={handleChangeArea}
+                  >
+                    {Object.keys(areaInfo).map((key) => (
+                      <MenuItem id="city" value={key}>
+                        {areaInfo[Number(key)]}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </Grid>
                 <Grid item sx={{ paddingBottom: 2 }}>
                   <InputLabel className={classes.label} id="city">
                     ジャンル
                   </InputLabel>
-                  <Select id="city" labelId="city" sx={{ width: '100%' }}>
-                    <MenuItem value={10}>Ten</MenuItem>
+                  <Select
+                    id="genre"
+                    labelId="genre"
+                    sx={{ width: '100%' }}
+                    onChange={handleChangeGenre}
+                  >
+                    {Object.keys(genreInfo).map((key) => (
+                      <MenuItem id="genre" value={key}>
+                        {genreInfo[Number(key)]}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </Grid>
                 <Grid item sx={{ paddingBottom: 2 }}>
                   <InputLabel className={classes.label}>音源</InputLabel>
+
                   <div className={styles.audioInput}>
-                    <input type="file"></input>
+                    <input type="file" value={user.audio_1}></input>
                   </div>
                 </Grid>
                 <Grid item sx={{ paddingBottom: 2 }}>
                   <InputLabel className={classes.label} id="city">
                     探しているパート
                   </InputLabel>
-                  <Select id="city" labelId="city" sx={{ width: '100%' }}>
-                    <MenuItem value={10}>Ten</MenuItem>
+                  <Select
+                    id="part"
+                    labelId="part"
+                    sx={{ width: '100%' }}
+                    onChange={handleChangePart}
+                  >
+                    {Object.keys(musicPartInfo).map((key) => (
+                      <MenuItem
+                        id="part"
+                        defaultValue={musicPartInfo[userInfo.part]}
+                        value={key}
+                      >
+                        {musicPartInfo[Number(key)]}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </Grid>
                 <Grid item sx={{ paddingBottom: 2 }}>
@@ -128,6 +214,7 @@ const EditProfile = () => {
                       type="submit"
                       variant="contained"
                       sx={{ width: '30%' }}
+                      onClick={updateUser}
                     >
                       変更する
                     </Button>

@@ -6,11 +6,14 @@ import { makeStyles } from '@mui/styles';
 import styles from '../components/Auth.module.css';
 import { useState } from 'react';
 import { userInfo } from '../interface/userInfo';
-import { login } from '../features/userSlice';
+import {
+  setUserInfo,
+  setUserId,
+  fetchAsyncPostUser,
+  FetchAsyncGetUserId,
+} from '../features/userSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Register: React.FC = () => {
   const useStyles: any = makeStyles({
@@ -52,7 +55,7 @@ const Register: React.FC = () => {
       name: data.name,
       email: data.email,
       password: data.password,
-      age: 0,
+      part: 0,
       area: 0,
       genre: 0,
       recruit: 0,
@@ -66,13 +69,10 @@ const Register: React.FC = () => {
     const result = await exeRegisterApi(reqData);
     console.log(result);
     if (result.status === 200) {
-      const res = await exeFetchUserId(data.email);
-      const result = res.data.map((val: userInfo) => val.id);
-      console.log('resid', result[0]);
-      reqData.id = result[0];
-      console.log('dispatch', reqData);
-      const assetData = Object.assign(reqData);
-      dispatch(login(assetData));
+      // const res = await exeFetchUserId(data.email);
+      // const result: userInfo = res.data.map((val: userInfo) => val);
+      dispatch(fetchAsyncPostUser(reqData));
+      // dispatch(FetchAsyncGetUserId(data.email));
       navigate('/home');
     } else {
       setErrorMsgFlg(true);

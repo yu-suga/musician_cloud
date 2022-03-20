@@ -1,13 +1,14 @@
-import { createSlice, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import { userInfo } from '../interface/userInfo';
+import axios from '../axiosConfig';
 
 const user: userInfo = {
   id: 0,
   name: '',
   email: '',
   password: '',
-  age: 0,
+  part: 0,
   area: 0,
   genre: 0,
   recruit: 0,
@@ -18,7 +19,30 @@ const user: userInfo = {
   audio_3: '',
 };
 
-const middleware = getDefaultMiddleware({ serializableCheck: false });
+/**
+ * 会員登録api実行処理
+ * @param data
+ */
+export const fetchAsyncPostUser = createAsyncThunk(
+  'user/get/user',
+  async (reqData: userInfo) => {
+    await axios.post('/v1/user/register', reqData);
+    return reqData;
+  }
+);
+
+/**
+ * ユーザーID取得api実行処理
+ * @param email
+ */
+export const FetchAsyncGetUserId = createAsyncThunk(
+  'user/get/userId',
+  async (email: string) => {
+    const result = await axios.get<number>(`/v1/user/id/${email}`);
+    console.log('result', result);
+    return result;
+  }
+);
 
 export const userSlice = createSlice({
   name: 'user',
@@ -27,7 +51,7 @@ export const userSlice = createSlice({
   },
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    login: (state, action) => {
+    setUserInfo: (state, action: PayloadAction<userInfo>) => {
       state.user = action.payload;
     },
     logout: (state) => {
@@ -36,7 +60,7 @@ export const userSlice = createSlice({
         name: '',
         email: '',
         password: '',
-        age: 0,
+        part: 0,
         area: 0,
         genre: 0,
         recruit: 0,
@@ -47,9 +71,25 @@ export const userSlice = createSlice({
         audio_3: '',
       };
     },
+    setUserId: (state, action: PayloadAction<number>) => {
+      console.log('payload', state);
+      state.user.id = state.user.id;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchAsyncPostUser.fulfilled, (state, action) => {
+      state.user = action.payload;
+    });
+    builder.addCase(FetchAsyncGetUserId.fulfilled, (state, action) => {
+      console.log('payload', action.payload);
+      if (!action.payload) {
+        state.user.id = action.payload;
+      }
+    });
   },
 });
-export const { login, logout } = userSlice.actions;
+
+export const { setUserInfo, logout, setUserId } = userSlice.actions;
 
 export const selectUser = (state: RootState) => state.user.user;
 
